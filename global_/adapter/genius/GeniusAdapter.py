@@ -48,8 +48,8 @@ class GeniusAdapter:
         lyrics = song.lyrics
         cleaned_lyrics = self.clean_lyrics(lyrics)
         if show_info:
-            pprint(lyrics)
-        return lyrics
+            pprint(cleaned_lyrics)
+        return cleaned_lyrics
 
     def clean_lyrics(self, lyrics: str) -> str:
         """
