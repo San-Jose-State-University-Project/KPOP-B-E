@@ -1,11 +1,10 @@
 from dotenv import load_dotenv
-from pydantic import BaseModel
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth
 import spotipy
 import os
 from pprint import pprint
-from typing import List, Optional
-from SearchQuery import SearchQuery
+from typing import List
+from global_.adapter.spotify.SearchQuery import SearchQuery
 
 load_dotenv()
 
