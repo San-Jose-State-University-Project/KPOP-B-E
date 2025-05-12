@@ -1,7 +1,6 @@
 from pprint import pprint
 from transformers import pipeline
 
-
 class EmotionClassification():
     """감정 분석하는 클래스입니다."""
     def __init__(self):
