@@ -52,3 +52,4 @@ if __name__ == "__main__":
     genius = GeniusAdapter()
     genius.search_song_lyrics_with_artist("Bol4", song="여행", show_info=True)
 
+
