@@ -79,3 +79,5 @@ if __name__ == "__main__":
     genius = GeniusAdapter()
     genius.search_song_lyrics_with_artist("", song="Steve’s Lava Chicken", show_info=True)
 
+
+
