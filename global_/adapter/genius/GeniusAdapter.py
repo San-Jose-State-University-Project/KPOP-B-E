@@ -38,6 +38,8 @@ class GeniusAdapter:
         search_song = search_artist.song(song)
         lyrics = search_song.lyrics
         cleaned_lyrics = self.clean_lyrics(lyrics)
+
+
         if show_info:
             pprint(cleaned_lyrics)
         return cleaned_lyrics
@@ -77,7 +79,5 @@ class GeniusAdapter:
         return cleaned
 if __name__ == "__main__":
     genius = GeniusAdapter()
-    genius.search_song_lyrics_with_artist("", song="Steve’s Lava Chicken", show_info=True)
-
-
+    genius.search_song_lyrics_with_artist("bol4", song="여행", show_info=True)
 

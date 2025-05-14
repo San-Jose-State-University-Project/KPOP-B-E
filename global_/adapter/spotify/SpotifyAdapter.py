@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import spotipy
 import os
 from pprint import pprint
@@ -13,17 +13,18 @@ class SpotifyAdapter:
         self.client_id = os.getenv("SPOTIFY_CLIENT_ID")
         self.client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
-        # client_credentials_manager = SpotifyClientCredentials(
-        #     client_id=self.client_id,
-        #     client_secret=self.client_secret
-        # )
-        auth_manager = SpotifyOAuth(
+        client_credentials_manager = SpotifyClientCredentials(
             client_id=self.client_id,
-            client_secret=self.client_secret,
-            redirect_uri=redirect_uri,
-            scope="playlist-read-private playlist-read-collaborative",
+            client_secret=self.client_secret
         )
-        self.sp = spotipy.Spotify(auth_manager=auth_manager)
+        # auth_manager = SpotifyOAuth(
+        #     client_id=self.client_id,
+        #     client_secret=self.client_secret,
+        #     redirect_uri=redirect_uri,
+        #     scope="user-read-private playlist-read-private playlist-read-collaborative",
+        # )
+        self.sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+        print(self.sp.auth_manager.get_access_token())
 
     def get_artist(self, artist_id : str, show_info : bool = False, details : bool = False):
         """아티스트의 정보를 조회할 수 있다."""
@@ -89,6 +90,14 @@ class SpotifyAdapter:
 
         self.__show_details(album, details=details)
         return album
+
+    def get_audio_features(self, track_ids: list[str], show_info : bool = False):
+        audios_feature = self.sp.audio_features(track_ids)
+        if show_info:
+            pprint(audios_feature)
+        return audios_feature
+
+
 
     def search(self, q : SearchQuery, limit=10, offset=0, type : List[str] = "track", country="KR",  details : bool = False):
         """spotify에서 검색할 수 있다.
@@ -158,31 +167,31 @@ class SpotifyAdapter:
         if details:
             pprint(json)
 
-
 if __name__ == "__main__":
     spotify = SpotifyAdapter()
-
-    # https://open.spotify.com/artist/1SsVqqC31h54Hg08g7uQhM
-    artist_id = "1SsVqqC31h54Hg08g7uQhM"
-    spotify.get_artist(artist_id)
-    spotify.artist_top_tracks(artist_id=artist_id, show_info=True)
-
-    # https://open.spotify.com/track/7tI8dRuH2Yc6RuoTjxo4dU
-    track_id = "7tI8dRuH2Yc6RuoTjxo4dU"
-    spotify.get_track(track_id)
-
-    # https://open.spotify.com/playlist/7KUBkg0P6QTJtJaySQKw4C
-    playlist_id = "7KUBkg0P6QTJtJaySQKw4C"
-    spotify.get_playlist(playlist_id, show_info=True)
-
-    # https://open.spotify.com/album/7hFjISvuzhZauC3EK66GuG
-    album_id = "7hFjISvuzhZauC3EK66GuG"
-    spotify.get_album(album_id, show_info=True)
-
-
-    # "album:SLOMO track:SAHARA artist:yanghongwon"
-    query = SearchQuery(artist="yanghongwon")
-    type = ["artist"]
-    spotify.search(q=query, type=type, details=True)
-
-    spotify.get_all_albums_by_artist(artist_id=artist_id, show_info=True)
+    spotify.get_features()
+    
+    # # https://open.spotify.com/artist/1SsVqqC31h54Hg08g7uQhM
+    # artist_id = "1SsVqqC31h54Hg08g7uQhM"
+    # spotify.get_artist(artist_id)
+    # spotify.artist_top_tracks(artist_id=artist_id, show_info=True)
+    #
+    # # https://open.spotify.com/track/7tI8dRuH2Yc6RuoTjxo4dU
+    # track_id = "7tI8dRuH2Yc6RuoTjxo4dU"
+    # spotify.get_track(track_id)
+    #
+    # # https://open.spotify.com/playlist/7KUBkg0P6QTJtJaySQKw4C
+    # playlist_id = "7KUBkg0P6QTJtJaySQKw4C"
+    # spotify.get_playlist(playlist_id, show_info=True)
+    #
+    # # https://open.spotify.com/album/7hFjISvuzhZauC3EK66GuG
+    # album_id = "7hFjISvuzhZauC3EK66GuG"
+    # spotify.get_album(album_id, show_info=True)
+    #
+    #
+    # # "album:SLOMO track:SAHARA artist:yanghongwon"
+    # query = SearchQuery(artist="yanghongwon")
+    # type = ["artist"]
+    # spotify.search(q=query, type=type, details=True)
+    #
+    # spotify.get_all_albums_by_artist(artist_id=artist_id, show_info=True)
