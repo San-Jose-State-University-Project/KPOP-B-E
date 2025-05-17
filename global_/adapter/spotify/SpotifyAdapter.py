@@ -91,14 +91,6 @@ class SpotifyAdapter:
         self.__show_details(album, details=details)
         return album
 
-    def get_audio_features(self, track_ids: list[str], show_info : bool = False):
-        audios_feature = self.sp.audio_features(track_ids)
-        if show_info:
-            pprint(audios_feature)
-        return audios_feature
-
-
-
     def search(self, q : SearchQuery, limit=10, offset=0, type : List[str] = "track", country="KR",  details : bool = False):
         """spotify에서 검색할 수 있다.
         q는 다음과 같은 형태로 올 수 있다.
@@ -169,8 +161,7 @@ class SpotifyAdapter:
 
 if __name__ == "__main__":
     spotify = SpotifyAdapter()
-    spotify.get_features()
-    
+    #
     # # https://open.spotify.com/artist/1SsVqqC31h54Hg08g7uQhM
     # artist_id = "1SsVqqC31h54Hg08g7uQhM"
     # spotify.get_artist(artist_id)
@@ -188,10 +179,10 @@ if __name__ == "__main__":
     # album_id = "7hFjISvuzhZauC3EK66GuG"
     # spotify.get_album(album_id, show_info=True)
     #
-    #
-    # # "album:SLOMO track:SAHARA artist:yanghongwon"
-    # query = SearchQuery(artist="yanghongwon")
-    # type = ["artist"]
-    # spotify.search(q=query, type=type, details=True)
+
+    # "album:SLOMO track:SAHARA artist:yanghongwon"
+    query = SearchQuery(artist="yanghongwon")
+    type = ["artist"]
+    spotify.search(q=query, type=type, details=True)
     #
     # spotify.get_all_albums_by_artist(artist_id=artist_id, show_info=True)

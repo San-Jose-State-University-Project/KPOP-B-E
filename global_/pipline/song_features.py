@@ -1,32 +1,35 @@
 import pandas as pd
-from global_.adapter.spotify.SearchQuery import SearchQuery
 from global_.adapter.spotify.SpotifyAdapter import SpotifyAdapter
+from global_.adapter.spotify.SearchQuery import SearchQuery
+spotify = SpotifyAdapter()
+df = pd.read_csv("KoreaWeeklyMay2025.csv")
 
-class KpopTrendAnalyzer:
-    def __init__(self):
-        self.spotify = SpotifyAdapter()
+from collections import Counter
+import matplotlib.pyplot as plt
 
-    def fetch_tracks_features_by_artist(self, artist_name: str, top_n: int = 10) -> pd.DataFrame:
-        search_query = SearchQuery(artist=artist_name)
-        artist_result = self.spotify.search(q=search_query, type=["artist"], details=True)
-        artist_items = artist_result["artists"]["items"]
-        if not artist_items:
-            raise ValueError(f"'{artist_name}'라는 아티스트를 찾을 수 없습니다.")
-        artist_id = artist_items[0]["id"]
+genre_counter = Counter()
 
-        top_tracks = self.spotify.artist_top_tracks(artist_id, show_info=True)["tracks"][:top_n]
-        track_ids = [track["id"] for track in top_tracks]
-        track_names = [track["name"] for track in top_tracks]
+for row in df.itertuples(index=False):
+    uri = row.uri
 
-        print(track_names)
+    try:
+        artist_id = spotify.get_track(uri, show_info=True)['artists'][0]['id']
+        genres = spotify.get_artist(artist_id, show_info=True)['genres']
 
-        features = self.spotify.get_audio_features(track_ids, show_info=True)
+        genre_counter.update(genres)
+    except Exception as e:
+        print(f"Error processing {uri}: {e}")
+        continue
 
-        df = pd.DataFrame(features)
-        df["track_name"] = track_names
-        return df
+# 상위 20개 장르 시각화
+top_genres = genre_counter.most_common(20)
+genres, counts = zip(*top_genres)
 
-if __name__ == "__main__":
-    analyzer = KpopTrendAnalyzer()
-    df = analyzer.fetch_tracks_features_by_artist("LE SSERAFIM")
-    print(df)
+plt.figure(figsize=(12, 6))
+plt.barh(genres, counts, color='skyblue')
+plt.xlabel('Count')
+plt.title('Top 20 Genres in Korean Spotify Top 200')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
+
