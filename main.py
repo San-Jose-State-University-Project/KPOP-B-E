@@ -52,7 +52,7 @@ def get_lyrics(request: LyricsRequest):
         raise HTTPException(status_code=500, detail=f"Genius API error: {str(e)}")
     return LyricsResponse(artist=request.artist, song=request.song, lyrics=lyrics)
 
-@app.post("/artist-info", response_model=ArtistInfoResponse)
+@app.post("/artist/info", response_model=ArtistInfoResponse)
 def get_artist_info(request: ArtistTracksRequest):
     try:
         query = SearchQuery(artist=request.artist_name)
@@ -85,7 +85,7 @@ def get_artist_info(request: ArtistTracksRequest):
         top_tracks=top_tracks_list
     )
 
-@app.post("/artist-search", response_model=SimpleArtistSearchResponse)
+@app.post("/artist/search", response_model=SimpleArtistSearchResponse)
 def search_artists(request: ArtistTracksRequest):
     try:
         query = SearchQuery(artist=request.artist_name)
