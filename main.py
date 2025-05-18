@@ -34,6 +34,14 @@ class ArtistInfoResponse(BaseModel):
     popularity: Optional[int] = 0
     top_tracks: List[TrackInfo] = []
 
+class SimpleArtistInfo(BaseModel):
+    artist_name: str
+    followers: int
+    popularity: int
+
+class SimpleArtistSearchResponse(BaseModel):
+    results: List[SimpleArtistInfo]
+
 @app.post("/lyrics", response_model=LyricsResponse)
 def get_lyrics(request: LyricsRequest):
     try:
@@ -42,26 +50,20 @@ def get_lyrics(request: LyricsRequest):
             raise HTTPException(status_code=404, detail="Lyrics not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Genius API error: {str(e)}")
-
     return LyricsResponse(artist=request.artist, song=request.song, lyrics=lyrics)
 
-
-@app.post("/artist-info", response_model=ArtistInfoResponse)
+@app.post("/artist/info", response_model=ArtistInfoResponse)
 def get_artist_info(request: ArtistTracksRequest):
     try:
         query = SearchQuery(artist=request.artist_name)
         search_result = spotify.search(q=query, limit=1, type=["artist"])
-
         if not search_result['artists']['items']:
             raise HTTPException(status_code=404, detail="Artist not found")
-
         artist = search_result['artists']['items'][0]
         artist_id = artist['id']
-
         genres = artist.get('genres', [])
         followers = artist.get('followers', {}).get('total', 0)
         popularity = artist.get('popularity', 0)
-
         top_tracks_resp = spotify.artist_top_tracks(artist_id=artist_id)
         top_tracks_list = []
         for track in top_tracks_resp['tracks']:
@@ -73,10 +75,8 @@ def get_artist_info(request: ArtistTracksRequest):
                     track_id=track['id']
                 )
             )
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Spotify API error: {str(e)}")
-
     return ArtistInfoResponse(
         artist_name=artist['name'],
         genres=genres,
@@ -85,6 +85,25 @@ def get_artist_info(request: ArtistTracksRequest):
         top_tracks=top_tracks_list
     )
 
+@app.post("/artist/search", response_model=SimpleArtistSearchResponse)
+def search_artists(request: ArtistTracksRequest):
+    try:
+        query = SearchQuery(artist=request.artist_name)
+        search_result = spotify.search(q=query, limit=20, type=["artist"])
+        artists = search_result['artists']['items']
+        if not artists:
+            raise HTTPException(status_code=404, detail="잘못된 검색입니다.")
+        result_list = sorted([
+            SimpleArtistInfo(
+                artist_name=artist['name'],
+                followers=artist.get('followers', {}).get('total', 0),
+                popularity=artist.get('popularity', 0)
+            )
+            for artist in artists
+        ], key=lambda x: x.popularity, reverse=True)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Spotify API error: {str(e)}")
+    return SimpleArtistSearchResponse(results=result_list)
 
 if __name__ == "__main__":
     import uvicorn
