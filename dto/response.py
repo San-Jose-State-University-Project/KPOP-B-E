@@ -13,8 +13,8 @@ class Track(BaseModel):
     popularity : int
 
 class GenreStat(BaseModel):
-    genre : str
-    avg_streams : int
+    genres : str
+    avg_streams : float
     count : int
 
 class TrendResponse(BaseModel):
