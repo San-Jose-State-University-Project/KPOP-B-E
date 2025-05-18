@@ -1,8 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
+from router.trend import trend_router
 
 app = FastAPI()
-
+app.include_router(trend_router)
 
 @app.get("/")
 async def root():

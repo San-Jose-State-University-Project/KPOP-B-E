@@ -1,6 +1,6 @@
 import pandas as pd
 from collections import Counter, defaultdict
-from global_.adapter.spotify.SpotifyAdapter import SpotifyAdapter
+from data.adapter.spotify.SpotifyAdapter import SpotifyAdapter
 import time
 print("import end")
 

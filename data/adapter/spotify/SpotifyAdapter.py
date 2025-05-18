@@ -4,7 +4,7 @@ import spotipy
 import os
 from pprint import pprint
 from typing import List
-from global_.adapter.spotify.SearchQuery import SearchQuery
+from data.adapter.spotify.SearchQuery import SearchQuery
 
 load_dotenv()
 

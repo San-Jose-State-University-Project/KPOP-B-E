@@ -1,5 +1,5 @@
-from global_.model.emotion_classification import EmotionClassification
-from global_.adapter.deepl.DeepLAdapter import DeepLAdapter
+from data.model.emotion_classification import EmotionClassification
+from data.adapter.deepl.DeepLAdapter import DeepLAdapter
 from collections import Counter
 
 
