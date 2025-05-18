@@ -2,33 +2,47 @@ import pandas as pd
 from collections import Counter, defaultdict
 from data.adapter.spotify.SpotifyAdapter import SpotifyAdapter
 import time
+from pathlib import Path
 print("import end")
-
 
 class TrendAnalyze:
     def __init__(self, day):
         self.day = day
-        self.filename = f"../downloaded_spotify_files/spotify_kr_daily_{day}.csv"
+        base_dir = Path(__file__).resolve().parent.parent.parent
+        download_dir = base_dir / "data" / "downloaded_spotify_files"
+        self.filename = download_dir / f"spotify_kr_daily_{day}.csv"
+
         self.df = pd.read_csv(self.filename)
         self.spotify = SpotifyAdapter()
 
-    def trend_analyze(self):
+    def analyze_metadata(self):
+        genre_counter = Counter()
+        artist_cache = {}
+        genres_list = []
+        popularities = []
+        image_urls = []
+
         total_streams = self.df['streams'].sum()
         self.df['stream_ratio'] = self.df['streams'] / total_streams
         print(f"[{self.day}] 총 스트리밍 수: {total_streams:,}")
         print(self.df[['streams', 'stream_ratio']].head())
 
-    def genre_analysis(self):
-        genre_counter = Counter()
-        artist_cache = {}
-        genres_list = []
-
         for row in self.df.itertuples(index=False):
             try:
-                time.sleep(0.3)
+                time.sleep(0.5)
                 track_info = self.spotify.get_track(str(row.uri), show_info=True)
-                artist_id = track_info['artists'][0]['id']
 
+                # 🎧 인기도
+                popularity = track_info.get('popularity', None)
+                popularities.append(popularity)
+
+                # 🖼️ 앨범 이미지 URL
+                images = track_info.get('album', {}).get('images', [])
+                image_url = images[0]['url'] if images else None
+                image_urls.append(image_url)
+
+                # 🎼 장르 (아티스트 기반)
+                artist_id = track_info['artists'][0]['id']
                 if artist_id in artist_cache:
                     artist_info = artist_cache[artist_id]
                 else:
@@ -38,16 +52,21 @@ class TrendAnalyze:
                 genres = artist_info.get('genres', [])
                 genres_list.append(genres)
                 genre_counter.update(genres)
+
             except Exception as e:
                 print(f"Error processing {row.uri}: {e}")
-                genres_list.append([])  # 실패 시 빈 리스트라도 추가
+                genres_list.append([])
+                popularities.append(None)
+                image_urls.append(None)
                 continue
 
         self.df['genre'] = genres_list
-        genre_dict = dict(genre_counter)
-        print(genre_dict)
+        self.df['popularity'] = popularities
+        self.df['album_image_url'] = image_urls
 
-        return genre_dict
+        print("장르 분포:", dict(genre_counter))
+
+        return dict(genre_counter)
 
     def genre_stats_analysis(self):
         if 'genre' not in self.df.columns:
@@ -62,33 +81,29 @@ class TrendAnalyze:
         genre_df = pd.DataFrame([
             {
                 'genre': genre,
-                'avg_streams': sum(values) / len(values),  # ✅ x[0] → x
+                'avg_streams': sum(values) / len(values),
                 'count': len(values)
             }
             for genre, values in genre_stats.items()
         ])
 
         genre_df.sort_values(by='avg_streams', ascending=False, inplace=True)
+        dict_df = genre_df.to_dict(orient='records')
         print("장르별 평균 스트리밍 수")
         print(genre_df)
-
-        return genre_df
+        return dict_df
 
     def print_dataframe(self, size=200):
         print(self.df.head(size))
 
-    def to_pickle(self):
-        return self.df.to_pickle()
-
     def to_dict(self):
-        return self.df.to_dict()
+        return self.df.to_dict(orient='records')
 
 if __name__ == "__main__":
-    analyzer = TrendAnalyze(day="2025-05-08")
+    analyzer = TrendAnalyze(day="2025-05-12")
     analyzer.print_dataframe()
 
-    analyzer.trend_analyze()
-    analyzer.genre_analysis()
+    analyzer.analyze_metadata()
 
     genre_stats_df = analyzer.genre_stats_analysis()
     analyzer.print_dataframe()

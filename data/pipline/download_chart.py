@@ -3,6 +3,7 @@ import time
 import pickle
 import shutil
 from datetime import datetime
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -11,9 +12,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 class DownloadChart:
 
-    def __init__(self, user):
-        self.COOKIES_PATH = "spotify_cookies.pkl"
-        self.DOWNLOAD_DIR = f"/Users/{user}/Desktop/Project/spofity/global_/downloaded_spotify_files"
+    def __init__(self):
+        base_dir = Path(__file__).parent
+        self.COOKIES_PATH = str(base_dir / "spotify_cookies.pkl")
+        self.DOWNLOAD_DIR = "/Users/pdh/Desktop/Project/spofity/data/downloaded_spotify_files"
         self.options = webdriver.ChromeOptions()
 
     def save_cookies_after_manual_login(self):
@@ -35,7 +37,7 @@ class DownloadChart:
         options.add_experimental_option("prefs", prefs)
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         driver.get("https://charts.spotify.com/")
-        if not os.path.exists(self.COOKIES_PATH):
+        if not Path(self.COOKIES_PATH).exists():
             raise FileNotFoundError("쿠키 파일이 없습니다.")
         with open(self.COOKIES_PATH, "rb") as f:
             cookies = pickle.load(f)
@@ -102,9 +104,11 @@ class DownloadChart:
         time.sleep(3)
         driver.quit()
 
+download_chart = DownloadChart()
+
 if __name__ == "__main__":
     print("🚀 Spotify KR Chart Downloader 시작")
-    download_chart = DownloadChart("pdh")
+    download_chart = DownloadChart()
 
     # download_chart.save_cookies_after_manual_login()  # 최초 1회만 실행
     download_chart.crawl_one_day(date_str="2025-05-16", chart_type="daily")
