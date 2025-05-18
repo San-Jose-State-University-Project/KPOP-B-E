@@ -37,7 +37,7 @@ class GeniusAdapter:
         search_artist = self.search_artist(artist, show_info)
         search_song = search_artist.song(song)
         lyrics = search_song.lyrics
-        cleaned_lyrics = self.clean_lyrics(lyrics)
+        cleaned_lyrics = self.__clean_lyrics(lyrics)
 
 
         if show_info:
@@ -48,12 +48,12 @@ class GeniusAdapter:
         """곡 이름으로 가사 검색"""
         song = self.search_song(song, show_info)
         lyrics = song.lyrics
-        cleaned_lyrics = self.clean_lyrics(lyrics)
+        cleaned_lyrics = self.__clean_lyrics(lyrics)
         if show_info:
             pprint(cleaned_lyrics)
         return cleaned_lyrics
 
-    def clean_lyrics(self, lyrics: str) -> str:
+    def __clean_lyrics(self, lyrics: str) -> str:
         """
         가사 앞의 메타 정보 및 [Chorus], [Verse 1] 등의 구간 라벨 제거
         """
