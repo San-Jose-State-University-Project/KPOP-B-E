@@ -1,1 +1,16 @@
+<<<<<<< HEAD
 .env
+=======
+__pycache__/
+*.py[cod]
+*.pkl
+*.cache
+*.log
+
+.DS_Store
+
+.env
+data/downloaded_spotify_files/*
+.venv
+.idea/
+>>>>>>> 28cf749 (feat ::: 트렌드 응답 엔드포인트)

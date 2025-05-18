@@ -5,5 +5,5 @@ trend_router = APIRouter(prefix="/trend")
 
 @trend_router.get("/{day}")
 async def get_trend(day : str):
-    response = service.get_trend(day)
+    response = await service.get_trend(day)
     return response
