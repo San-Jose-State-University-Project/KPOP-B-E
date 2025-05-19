@@ -1,61 +1,41 @@
-from fastapi import FastAPI, HTTPException
+from typing import Optional, List
+
 from pydantic import BaseModel
-from typing import List, Optional
 
-from global_.adapter.genius.GeniusAdapter import GeniusAdapter
-from global_.adapter.spotify.SpotifyAdapter import SpotifyAdapter, SearchQuery
+from data.adapter.genius.GeniusAdapter import GeniusAdapter
+from data.adapter.spotify.SearchQuery import SearchQuery
+from data.adapter.spotify.SpotifyAdapter import SpotifyAdapter
+from fastapi import HTTPException
+from dto.response import *
 
+print("import strart")
+import uvicorn
+from fastapi import FastAPI
+from router.trend import trend_router
+print("import router")
+print("start")
 app = FastAPI()
+app.include_router(trend_router)
+
+
 genius = GeniusAdapter()
 spotify = SpotifyAdapter()
 
-class LyricsRequest(BaseModel):
-    artist: str
-    song: str
 
-class LyricsResponse(BaseModel):
-    artist: str
-    song: str
-    lyrics: str
-
-class ArtistTracksRequest(BaseModel):
-    artist_name: str
-
-class TrackInfo(BaseModel):
-    track_name: str
-    artist_name: str
-    album_name: Optional[str] = None
-    track_id: Optional[str] = None
-
-class ArtistInfoResponse(BaseModel):
-    artist_name: str
-    genres: Optional[List[str]] = []
-    followers: Optional[int] = 0
-    popularity: Optional[int] = 0
-    top_tracks: List[TrackInfo] = []
-
-class SimpleArtistInfo(BaseModel):
-    artist_name: str
-    followers: int
-    popularity: int
-
-class SimpleArtistSearchResponse(BaseModel):
-    results: List[SimpleArtistInfo]
-
-@app.post("/lyrics", response_model=LyricsResponse)
-def get_lyrics(request: LyricsRequest):
+@app.get("/lyrics/{artist}/{song}", response_model=LyricsResponse)
+def get_lyrics(artist: str, song : str):
     try:
-        lyrics = genius.search_song_lyrics_with_artist(request.artist, request.song)
+        lyrics = genius.search_song_lyrics_with_artist(artist, song)
         if not lyrics or lyrics.strip() == "":
             raise HTTPException(status_code=404, detail="Lyrics not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Genius API error: {str(e)}")
-    return LyricsResponse(artist=request.artist, song=request.song, lyrics=lyrics)
+    return LyricsResponse(artist=artist, song=song, lyrics=lyrics)
 
-@app.post("/artist/info", response_model=ArtistInfoResponse)
-def get_artist_info(request: ArtistTracksRequest):
+@app.get("/artist/info/{artist_name}", response_model=ArtistInfoResponse)
+def get_artist_info(artist_name: str):
     try:
-        query = SearchQuery(artist=request.artist_name)
+        query = SearchQuery(artist=artist_name)
         search_result = spotify.search(q=query, limit=1, type=["artist"])
         if not search_result['artists']['items']:
             raise HTTPException(status_code=404, detail="Artist not found")
@@ -85,10 +65,10 @@ def get_artist_info(request: ArtistTracksRequest):
         top_tracks=top_tracks_list
     )
 
-@app.post("/artist/search", response_model=SimpleArtistSearchResponse)
-def search_artists(request: ArtistTracksRequest):
+@app.get("/artist/search/{artist_name}", response_model=SimpleArtistSearchResponse)
+def search_artists(artist_name : str):
     try:
-        query = SearchQuery(artist=request.artist_name)
+        query = SearchQuery(artist=artist_name)
         search_result = spotify.search(q=query, limit=20, type=["artist"])
         artists = search_result['artists']['items']
         if not artists:
@@ -102,9 +82,10 @@ def search_artists(request: ArtistTracksRequest):
             for artist in artists
         ], key=lambda x: x.popularity, reverse=True)
     except Exception as e:
+        print(result_list)
         raise HTTPException(status_code=500, detail=f"Spotify API error: {str(e)}")
     return SimpleArtistSearchResponse(results=result_list)
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=3030, reload=True)
+    print("run uvicorn")
+    uvicorn.run(app, host="0.0.0.0", port=3030)
