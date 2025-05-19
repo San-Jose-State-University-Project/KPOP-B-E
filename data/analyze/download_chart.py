@@ -1,14 +1,16 @@
+print("import start")
 import os
 import time
 import pickle
 import shutil
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
+print("import end")
 
 class DownloadChart:
 
@@ -83,8 +85,9 @@ class DownloadChart:
         except Exception as e:
             print(f"[{target_date}] 다운로드 실패: {e}")
 
-    def crawl_one_day(self, date_str: str, chart_type="daily"):
+    def crawl_one(self, date_str: str, chart_type="weekly"):
         """지정된 날짜 하루만 다운로드 (이미 있으면 생략)"""
+        print(date_str)
         new_filename = f"spotify_kr_{chart_type}_{date_str}.csv"
         file_path = os.path.join(self.DOWNLOAD_DIR, new_filename)
 
@@ -111,4 +114,4 @@ if __name__ == "__main__":
     download_chart = DownloadChart()
 
     # download_chart.save_cookies_after_manual_login()  # 최초 1회만 실행
-    download_chart.crawl_one_day(date_str="2025-05-16", chart_type="daily")
+    download_chart.crawl_one(date_str="2025-05-05", chart_type="weekly")

@@ -8,11 +8,11 @@ from data.redis.redis_client import redis_client
 print("import end")
 
 class TrendAnalyze:
-    def __init__(self, day):
+    def __init__(self, day, chart_type="weekly"):
         self.day = day
         base_dir = Path(__file__).resolve().parent.parent.parent
         download_dir = base_dir / "data" / "downloaded_spotify_files"
-        self.filename = download_dir / f"spotify_kr_daily_{day}.csv"
+        self.filename = download_dir / f"spotify_kr_{chart_type}_{day}.csv"
 
         self.df = pd.read_csv(self.filename)
         self.spotify = SpotifyAdapter()
