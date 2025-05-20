@@ -60,7 +60,8 @@ def get_artist_info(artist_name: str):
                     track_name=track['name'],
                     artist_name=track['artists'][0]['name'],
                     album_name=track['album']['name'],
-                    track_id=track['id']
+                    track_id=track['id'],
+                    image_url=track['album']['images'][0]['url']
                 )
             )
     except Exception as e:
@@ -70,6 +71,7 @@ def get_artist_info(artist_name: str):
         genres=genres,
         followers=followers,
         popularity=popularity,
+        image_url = artist['images'][0]['url'] if artist.get('images') else None,
         top_tracks=top_tracks_list
     )
 

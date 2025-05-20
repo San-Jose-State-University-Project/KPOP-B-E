@@ -33,6 +33,7 @@ class TrackInfo(BaseModel):
     artist_name: str
     album_name: Optional[str] = None
     track_id: Optional[str] = None
+    image_url: Optional[str] = None
 
 class ArtistInfoResponse(BaseModel):
     artist_name: str
@@ -40,6 +41,7 @@ class ArtistInfoResponse(BaseModel):
     followers: Optional[int] = 0
     popularity: Optional[int] = 0
     top_tracks: List[TrackInfo] = []
+    image_url : Optional[str] = None
 
 class SimpleArtistInfo(BaseModel):
     artist_name: str

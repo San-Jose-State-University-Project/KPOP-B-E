@@ -188,3 +188,5 @@ if __name__ == "__main__":
     spotify.search(q=query, type=type, details=True)
     #
     # spotify.get_all_albums_by_artist(artist_id=artist_id, show_info=True)
+
+    spotify.artist_top_tracks(artist_id="1SsVqqC31h54Hg08g7uQhM", details=True)
