@@ -147,7 +147,6 @@ async def get_kpop_subgenres():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Error: {str(e)}")
 
-
 if __name__ == "__main__":
     print("run uvicorn")
     uvicorn.run(app, host="0.0.0.0", port=3030)
